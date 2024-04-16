@@ -12,6 +12,7 @@
 
     <modules>
 
+        <module>hw01-xml-config</module>
     </modules>
 
 </project>
