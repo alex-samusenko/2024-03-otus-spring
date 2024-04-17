@@ -3,11 +3,11 @@ package ru.otus.dao;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.otus.config.TestFileNameProvider;
 import ru.otus.dao.dto.QuestionDto;
 import ru.otus.domain.Question;
 import ru.otus.exceptions.QuestionReadException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,14 +17,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Component
 @RequiredArgsConstructor
 public class CsvQuestionDao implements QuestionDao {
     private final TestFileNameProvider fileNameProvider;
 
     @Override
     public List<Question> findAll() {
-        try (InputStream file = getInputStream()) {
-            return readQuestionsFromCsv(file);
+        try (InputStream inputStream = getInputStream()) {
+            return readQuestionsFromCsv(inputStream);
         } catch (IOException e) {
             throw new QuestionReadException("Error reading question file", e);
         }

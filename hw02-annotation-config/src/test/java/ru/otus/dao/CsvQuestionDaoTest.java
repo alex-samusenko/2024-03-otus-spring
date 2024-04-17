@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import ru.otus.config.AppProperties;
 import ru.otus.config.TestFileNameProvider;
 import ru.otus.domain.Question;
+
 import java.io.InputStream;
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class CsvQuestionDaoTest {
         Assertions.assertNotNull(inputStream);
         Mockito.when(fileNameProviderMock.getTestFileName()).thenReturn("questions.csv");
         List<Question> all = questionDao.findAll();
-        Assertions.assertEquals(4, all.size(), "");
+        Assertions.assertEquals(5, all.size(), "");
     }
-
 }

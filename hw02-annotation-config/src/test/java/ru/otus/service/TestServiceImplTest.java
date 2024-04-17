@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.otus.dao.CsvQuestionDao;
+import ru.otus.domain.Student;
 
 public class TestServiceImplTest {
     private final StreamsIOService ioService = Mockito.mock(StreamsIOService.class);
@@ -20,7 +21,8 @@ public class TestServiceImplTest {
     @Test
     void executeTestService() {
         Mockito.when(csvQuestionDao.findAll()).thenReturn(Mockito.anyList());
-        testServiceImpl.executeTest();
+        Student student = new Student("Aleksei", "Samusenko");
+        testServiceImpl.executeTestFor(student);
         Mockito.verify(ioService, Mockito.times(1)).printLine(Mockito.anyString());
         Mockito.verify(ioService, Mockito.times(1)).printFormattedLine(Mockito.anyString());
     }
