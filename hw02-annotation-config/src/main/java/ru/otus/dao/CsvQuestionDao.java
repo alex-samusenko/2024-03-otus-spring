@@ -33,11 +33,7 @@ public class CsvQuestionDao implements QuestionDao {
 
     private InputStream getInputStream() {
         ClassLoader classLoader = getClass().getClassLoader();
-        try (InputStream inputStream = classLoader.getResourceAsStream(fileNameProvider.getTestFileName())) {
-            return Objects.requireNonNull(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return Objects.requireNonNull(classLoader.getResourceAsStream(fileNameProvider.getTestFileName()));
     }
 
     private List<Question> readQuestionsFromCsv(InputStream inputStream) {
