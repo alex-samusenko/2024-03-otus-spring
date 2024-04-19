@@ -6,7 +6,7 @@
 
 
     <groupId>ru.otus</groupId>
-    <artifactId>hw01-xml-config</artifactId>
+    <artifactId>hw02-annotation-config</artifactId>
     <version>1.0</version>
 
     <properties>
