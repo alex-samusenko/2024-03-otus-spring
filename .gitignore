@@ -25,6 +25,12 @@ replay_pid*
 
 target/
 
+# .NET
+bin/
+obj/
+.vs/
+*.user
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
