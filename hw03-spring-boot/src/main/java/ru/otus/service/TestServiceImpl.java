@@ -10,8 +10,6 @@ import ru.otus.domain.Student;
 import ru.otus.domain.TestResult;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +20,8 @@ public class TestServiceImpl implements TestService {
     private final LocalizedMessagesService messages;
 
     private final QuestionDao questionDao;
+
+    private final AnswerKeys answerKeys;
 
     @Override
     public TestResult executeTestFor(Student student) {
@@ -40,7 +40,7 @@ public class TestServiceImpl implements TestService {
         printQuestionMeta(question);
         printAnswers(answers);
         var studentAnswers = readStudentAnswers(answers.size(), question.choiceType());
-        testResult.applyAnswer(question, correctIndexes(answers).equals(studentAnswers));
+        testResult.applyAnswer(question, answerKeys.correctIndexes(question).equals(studentAnswers));
     }
 
     private void printQuestionMeta(Question question) {
@@ -73,11 +73,4 @@ public class TestServiceImpl implements TestService {
                 messages.getMessage("test.answer.error.multiple"));
     }
 
-    private Set<Integer> correctIndexes(List<Answer> answers) {
-        return IntStream.range(0, answers.size())
-                .filter(index -> answers.get(index).isCorrect())
-                .map(index -> index + 1)
-                .boxed()
-                .collect(Collectors.toSet());
-    }
 }

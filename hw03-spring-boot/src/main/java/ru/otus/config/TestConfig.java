@@ -6,5 +6,7 @@ public interface TestConfig {
 
     int getPassingScore();
 
+    int getTimeLimitSeconds();
+
     Locale getLocale();
 }

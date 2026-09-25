@@ -8,6 +8,8 @@ public class AppProperties implements TestConfig, TestFileNameProvider {
 
     private int passingScore;
 
+    private int timeLimitSeconds;
+
     private Locale locale;
 
     @Override
@@ -17,6 +19,15 @@ public class AppProperties implements TestConfig, TestFileNameProvider {
 
     public void setPassingScore(int passingScore) {
         this.passingScore = passingScore;
+    }
+
+    @Override
+    public int getTimeLimitSeconds() {
+        return timeLimitSeconds;
+    }
+
+    public void setTimeLimitSeconds(int timeLimitSeconds) {
+        this.timeLimitSeconds = timeLimitSeconds;
     }
 
     @Override

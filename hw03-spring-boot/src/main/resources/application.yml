@@ -1,7 +1,11 @@
+server:
+  port: 8080
+
 spring:
   main:
     banner-mode: console
 
 test:
   passing-score: 80
+  time-limit-seconds: 600
   locale: ru
