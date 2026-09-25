@@ -1,6 +1,6 @@
 # Skip this header line when configuring CsvToBean (withSkipLines)
-Is there life on Mars?;EASY;Science doesn't know this yet%true|Certainly. The red UFO is from Mars. And green is from Venus%false|Absolutely not%false
-How should resources be loaded form jar in Java?;MEDIUM;ClassLoader#geResourceAsStream or ClassPathResource#getInputStream%true|ClassLoader#geResource#getFile + FileReader%false|Wingardium Leviosa%false
-Which option is a good way to handle the exception?;HARD;@SneakyThrow%false|e.printStackTrace()%false|Rethrow with wrapping in business exception (for example, QuestionReadException)%true|Ignoring exception%false
-What color is an orange?;EASY;Orange%true|Green%false|Yellow%false
-What is the shape of the Earth?;MEDIUM;Perfect hemisphere%false|Perfect Sphere%false|Mostly flat%false|Oblate Sphere%true
+Is there life on Mars?;EASY;SINGLE;Science doesn't know this yet%true|Certainly. The red UFO is from Mars. And green is from Venus%false|Absolutely not%false
+How should resources be loaded form jar in Java?;MEDIUM;MULTIPLE;ClassLoader#getResourceAsStream%true|ClassPathResource#getInputStream%true|ClassLoader#getResource#getFile + FileReader%false|Wingardium Leviosa%false
+Which option is a good way to handle the exception?;HARD;SINGLE;@SneakyThrow%false|e.printStackTrace()%false|Rethrow with wrapping in business exception (for example, QuestionReadException)%true|Ignoring exception%false
+What color is an orange?;EASY;SINGLE;Orange%true|Green%false|Yellow%false
+What is the shape of the Earth?;MEDIUM;SINGLE;Perfect hemisphere%false|Perfect Sphere%false|Mostly flat%false|Oblate Sphere%true

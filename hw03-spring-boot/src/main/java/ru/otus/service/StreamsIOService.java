@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class StreamsIOService implements IOService {
@@ -64,5 +67,34 @@ public class StreamsIOService implements IOService {
     public int readIntForRangeWithPrompt(int min, int max, String prompt, String errorMessage) {
         printLine(prompt);
         return readIntForRange(min, max, errorMessage);
+    }
+
+    @Override
+    public Set<Integer> readIntSetForRangeWithPrompt(int min, int max, String prompt, String errorMessage) {
+        printLine(prompt);
+        for (var i = 0; i < MAX_ATTEMPTS; i++) {
+            try {
+                return parseIndexSet(scanner.nextLine(), min, max);
+            } catch (IllegalArgumentException e) {
+                printLine(errorMessage);
+            }
+        }
+        throw new IllegalArgumentException("Error during reading int value");
+    }
+
+    private Set<Integer> parseIndexSet(String raw, int min, int max) {
+        var parts = raw.trim().split("[,\\s]+");
+        if (parts.length == 0 || parts[0].isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        var values = Arrays.stream(parts).map(Integer::parseInt).collect(Collectors.toSet());
+        if (values.size() != parts.length || outOfRange(values, min, max)) {
+            throw new IllegalArgumentException();
+        }
+        return values;
+    }
+
+    private boolean outOfRange(Set<Integer> values, int min, int max) {
+        return values.stream().anyMatch(value -> value < min || value > max);
     }
 }
