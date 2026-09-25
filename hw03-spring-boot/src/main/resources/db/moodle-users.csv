@@ -1,0 +1,9 @@
+username;role;idnumber;firstname;lastname;email;institution;department;city
+admin;admin;ADM-001;Администратор;Центра;admin@example.test;Учебный центр;Администрация;Москва
+manager;manager;MGR-001;Менеджер;Центра;manager@example.test;Учебный центр;Аттестация;Москва
+mentor;mentor;MNT-001;Преподаватель;Направления;mentor@example.test;Корпорация Галактика;Учебный центр;Москва
+petrov;mentor;MNT-002;Преподаватель;Петров;petrov@example.test;Корпорация Галактика;Учебный центр;Москва
+user;user;USR-001;Слушатель;Демо;user@example.test;Корпорация Галактика;Внедрение;Москва
+employee;user;EMP-001;Слушатель;Корпорация;employee@example.test;Корпорация Галактика;Внедрение;Москва
+customer;user;CUST-001;Слушатель;Заказчик;customer@example.test;Заказчик внедрения;Проектный офис;Санкт-Петербург
+partner;user;PART-001;Слушатель;Партнёр;partner@example.test;Партнёр корпорации;Внедрение;Казань
