@@ -33,10 +33,19 @@ public class TestServiceImpl implements TestService {
     private void askQuestion(Question question, TestResult testResult) {
         var answers = question.answers();
         ioService.printLine(question.text());
+        printDifficulty(question);
         var correctAnswer = printAnswers(answers);
         var studentAnswer = ioService.readIntForRangeWithPrompt(1, answers.size(),
                 messages.getMessage("test.answer.prompt"), messages.getMessage("test.answer.error"));
         testResult.applyAnswer(question, correctAnswer == studentAnswer);
+    }
+
+    private void printDifficulty(Question question) {
+        var difficulty = question.difficulty();
+        ioService.printLine(messages.getMessage(
+                "question.difficulty",
+                messages.getMessage("difficulty." + difficulty.name()),
+                difficulty.getWeight()));
     }
 
     private int printAnswers(List<Answer> answers) {

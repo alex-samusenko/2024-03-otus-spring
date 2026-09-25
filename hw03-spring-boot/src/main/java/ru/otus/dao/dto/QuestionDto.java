@@ -4,6 +4,7 @@ import com.opencsv.bean.CsvBindAndSplitByPosition;
 import com.opencsv.bean.CsvBindByPosition;
 import lombok.Data;
 import ru.otus.domain.Answer;
+import ru.otus.domain.Difficulty;
 import ru.otus.domain.Question;
 
 import java.util.ArrayList;
@@ -15,11 +16,14 @@ public class QuestionDto {
     @CsvBindByPosition(position = 0)
     private String text;
 
-    @CsvBindAndSplitByPosition(position = 1, collectionType = ArrayList.class,
+    @CsvBindByPosition(position = 1)
+    private String difficulty;
+
+    @CsvBindAndSplitByPosition(position = 2, collectionType = ArrayList.class,
             elementType = Answer.class, converter = AnswerCsvConverter.class, splitOn = "\\|")
     private List<Answer> answers;
 
     public Question toDomainObject() {
-        return new Question(text, answers);
+        return new Question(text, answers, Difficulty.valueOf(difficulty));
     }
 }

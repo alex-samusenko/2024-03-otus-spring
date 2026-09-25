@@ -3,5 +3,5 @@ spring:
     banner-mode: console
 
 test:
-  right-answers-count-to-pass: 3
+  passing-score: 80
   locale: ru

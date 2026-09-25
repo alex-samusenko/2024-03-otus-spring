@@ -23,7 +23,8 @@ public class ResultServiceImpl implements ResultService {
         ioService.printLine(messages.getMessage(
                 "result.answered", testResult.getAnsweredQuestions().size()));
         ioService.printLine(messages.getMessage("result.right", testResult.getRightAnswersCount()));
-        if (testResult.getRightAnswersCount() >= testConfig.getRightAnswersCountToPass()) {
+        ioService.printLine(messages.getMessage("result.score", testResult.getScorePercent()));
+        if (testResult.getScorePercent() >= testConfig.getPassingScore()) {
             ioService.printLine(messages.getMessage("result.passed"));
             return;
         }

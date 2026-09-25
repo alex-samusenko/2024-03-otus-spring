@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.dao.QuestionDao;
 import ru.otus.domain.Answer;
+import ru.otus.domain.Difficulty;
 import ru.otus.domain.Question;
 import ru.otus.domain.Student;
 import java.util.List;
@@ -32,7 +33,8 @@ public class TestServiceImplTest {
 
     @Test
     void countsTheRightAnswer() {
-        var question = new Question("Q", List.of(new Answer("yes", true), new Answer("no", false)));
+        var question = new Question("Q", List.of(new Answer("yes", true), new Answer("no", false)),
+                Difficulty.EASY);
         when(questionDao.findAll()).thenReturn(List.of(question));
         when(messages.getMessage(anyString())).thenReturn("prompt");
         when(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), anyString(), anyString())).thenReturn(1);
@@ -40,6 +42,8 @@ public class TestServiceImplTest {
         var result = testService.executeTestFor(new Student("Ivan", "Petrov"));
 
         assertThat(result.getRightAnswersCount()).isEqualTo(1);
+        assertThat(result.getScore()).isEqualTo(10);
+        assertThat(result.getScorePercent()).isEqualTo(100);
         assertThat(result.getAnsweredQuestions()).containsExactly(question);
     }
 }

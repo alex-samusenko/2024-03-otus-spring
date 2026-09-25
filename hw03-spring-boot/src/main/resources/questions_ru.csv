@@ -1,6 +1,6 @@
 # Эту строку надо пропустить при настройке CsvToBean (withSkipLines)
-Есть ли жизнь на Марсе?;Наука этого пока не знает%true|Красная тарелка с Марса, а зелёная с Венеры%false|Совершенно нет%false
-Как загружать ресурсы из jar в Java?;ClassLoader#getResourceAsStream или ClassPathResource#getInputStream%true|ClassLoader#getResource#getFile + FileReader%false|Wingardium Leviosa%false
-Как правильно обработать исключение?;@SneakyThrows%false|e.printStackTrace()%false|Пробросить, обернув в бизнес-исключение (например, QuestionReadException)%true|Проигнорировать исключение%false
-Какого цвета апельсин?;Оранжевый%true|Зелёный%false|Жёлтый%false
-Какая форма у Земли?;Идеальное полушарие%false|Идеальная сфера%false|В основном плоская%false|Сплюснутый сфероид%true
+Есть ли жизнь на Марсе?;EASY;Наука этого пока не знает%true|Красная тарелка с Марса, а зелёная с Венеры%false|Совершенно нет%false
+Как загружать ресурсы из jar в Java?;MEDIUM;ClassLoader#getResourceAsStream или ClassPathResource#getInputStream%true|ClassLoader#getResource#getFile + FileReader%false|Wingardium Leviosa%false
+Как правильно обработать исключение?;HARD;@SneakyThrows%false|e.printStackTrace()%false|Пробросить, обернув в бизнес-исключение (например, QuestionReadException)%true|Проигнорировать исключение%false
+Какого цвета апельсин?;EASY;Оранжевый%true|Зелёный%false|Жёлтый%false
+Какая форма у Земли?;MEDIUM;Идеальное полушарие%false|Идеальная сфера%false|В основном плоская%false|Сплюснутый сфероид%true

@@ -20,6 +20,8 @@ public class AttestationContextTest {
     void contextLoadsRussianAttestation() {
         assertThat(questionDao.findAll()).hasSize(5);
         assertThat(questionDao.findAll().get(0).text()).isEqualTo("Есть ли жизнь на Марсе?");
+        assertThat(questionDao.findAll().stream()
+                .mapToInt(question -> question.difficulty().getWeight()).sum()).isEqualTo(100);
         assertThat(messages.getMessage("result.title")).isEqualTo("Результаты аттестации:");
     }
 }

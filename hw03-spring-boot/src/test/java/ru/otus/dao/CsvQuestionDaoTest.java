@@ -3,6 +3,7 @@ package ru.otus.dao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.otus.config.TestFileNameProvider;
+import ru.otus.domain.Difficulty;
 import ru.otus.domain.Question;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +29,9 @@ public class CsvQuestionDaoTest {
         assertThat(questions).hasSize(5);
         assertThat(questions.get(0).text()).isEqualTo("Is there life on Mars?");
         assertThat(questions.get(0).answers()).hasSize(3);
+        assertThat(questions.get(0).difficulty()).isEqualTo(Difficulty.EASY);
+        assertThat(questions.stream().mapToInt(question -> question.difficulty().getWeight()).sum())
+                .isEqualTo(100);
     }
 
     @Test

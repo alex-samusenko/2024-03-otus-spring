@@ -6,17 +6,17 @@ import java.util.Locale;
 @ConfigurationProperties(prefix = "test")
 public class AppProperties implements TestConfig, TestFileNameProvider {
 
-    private int rightAnswersCountToPass;
+    private int passingScore;
 
     private Locale locale;
 
     @Override
-    public int getRightAnswersCountToPass() {
-        return rightAnswersCountToPass;
+    public int getPassingScore() {
+        return passingScore;
     }
 
-    public void setRightAnswersCountToPass(int rightAnswersCountToPass) {
-        this.rightAnswersCountToPass = rightAnswersCountToPass;
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
     }
 
     @Override

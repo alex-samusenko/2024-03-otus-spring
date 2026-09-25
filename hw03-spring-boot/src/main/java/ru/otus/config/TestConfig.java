@@ -4,7 +4,7 @@ import java.util.Locale;
 
 public interface TestConfig {
 
-    int getRightAnswersCountToPass();
+    int getPassingScore();
 
     Locale getLocale();
 }
