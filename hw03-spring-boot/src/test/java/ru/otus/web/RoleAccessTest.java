@@ -36,14 +36,14 @@ public class RoleAccessTest {
 
     @BeforeEach
     void cleanAttempts() {
-        jdbc.update("DELETE FROM attestation_attempt");
-        jdbc.update("DELETE FROM test_assignment");
+        jdbc.update("DELETE FROM attestation.attestation_attempt");
+        jdbc.update("DELETE FROM attestation.test_assignment");
     }
 
     @Test
     void storesListenerPasswordAsMd5() {
         var hash = jdbc.queryForObject(
-                "SELECT password FROM mdl_user WHERE username = 'user'", String.class);
+                "SELECT password FROM public.mdl_user WHERE username = 'user'", String.class);
         assertThat(hash).isEqualTo(digest.md5("1"));
         assertThat(hash).isEqualTo(MD5_OF_ONE);
     }

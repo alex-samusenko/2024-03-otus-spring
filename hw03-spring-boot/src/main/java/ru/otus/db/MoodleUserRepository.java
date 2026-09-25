@@ -18,14 +18,14 @@ public class MoodleUserRepository {
 
     private static final String ACTIVE_BY_USERNAME = """
             SELECT id, username, password, firstname, lastname, role
-            FROM mdl_user
+            FROM public.mdl_user
             WHERE username = ? AND mnethostid = 1
               AND deleted = 0 AND suspended = 0 AND confirmed = 1
             """;
 
     private static final String LISTENERS = """
             SELECT username, firstname, lastname, email, institution, department
-            FROM mdl_user
+            FROM public.mdl_user
             WHERE role = 'user' AND deleted = 0 AND mnethostid = 1
             ORDER BY lastname, firstname, username
             """;

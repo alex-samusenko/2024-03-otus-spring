@@ -48,7 +48,7 @@ public class MoodleSeed implements ApplicationRunner {
     private static final int CITY = 8;
 
     private static final String UPDATE = """
-            UPDATE mdl_user
+            UPDATE public.mdl_user
             SET password = ?, role = ?, idnumber = ?, firstname = ?, lastname = ?, email = ?,
                 institution = ?, department = ?, city = ?, country = ?,
                 deleted = 0, suspended = 0, confirmed = 1
@@ -56,7 +56,7 @@ public class MoodleSeed implements ApplicationRunner {
             """;
 
     private static final String INSERT = """
-            INSERT INTO mdl_user (
+            INSERT INTO public.mdl_user (
                 username, password, idnumber, firstname, lastname, email,
                 institution, department, city, country, timecreated, timemodified, role
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

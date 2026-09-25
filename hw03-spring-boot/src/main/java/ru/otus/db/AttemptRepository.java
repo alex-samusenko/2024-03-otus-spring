@@ -19,7 +19,7 @@ import java.util.List;
 public class AttemptRepository {
 
     private static final String INSERT = """
-            INSERT INTO attestation_attempt (
+            INSERT INTO attestation.attestation_attempt (
                 id, listener_id, assignment_id, test_code, test_title,
                 started_at, finished_at, score_percent, passed, right_answers, questions_count
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -28,8 +28,8 @@ public class AttemptRepository {
     private static final String FINISHED = """
             SELECT attempt.test_title, attempt.finished_at, attempt.score_percent, attempt.passed,
                    moodle_user.firstname, moodle_user.lastname
-            FROM attestation_attempt attempt
-            JOIN mdl_user moodle_user ON moodle_user.id = attempt.listener_id
+            FROM attestation.attestation_attempt attempt
+            JOIN public.mdl_user moodle_user ON moodle_user.id = attempt.listener_id
             WHERE attempt.finished_at IS NOT NULL
             """;
 
@@ -39,7 +39,7 @@ public class AttemptRepository {
             + " AND attempt.listener_id = ? ORDER BY attempt.finished_at DESC";
 
     private static final String FINISHED_EXISTS = """
-            SELECT COUNT(*) FROM attestation_attempt
+            SELECT COUNT(*) FROM attestation.attestation_attempt
             WHERE assignment_id = ? AND finished_at IS NOT NULL
             """;
 
@@ -47,7 +47,7 @@ public class AttemptRepository {
             SELECT test_code,
                    SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count,
                    SUM(CASE WHEN passed THEN 0 ELSE 1 END) AS failed_count
-            FROM attestation_attempt
+            FROM attestation.attestation_attempt
             WHERE finished_at IS NOT NULL
             GROUP BY test_code
             """;

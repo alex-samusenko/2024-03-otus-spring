@@ -29,8 +29,8 @@ public class AttemptControllerTest {
 
     @BeforeEach
     void cleanAttempts() {
-        jdbc.update("DELETE FROM attestation_attempt");
-        jdbc.update("DELETE FROM test_assignment");
+        jdbc.update("DELETE FROM attestation.attestation_attempt");
+        jdbc.update("DELETE FROM attestation.test_assignment");
     }
 
     @Test

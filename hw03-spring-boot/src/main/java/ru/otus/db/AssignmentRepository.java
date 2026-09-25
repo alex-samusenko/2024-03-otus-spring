@@ -16,22 +16,22 @@ import java.util.Optional;
 public class AssignmentRepository {
 
     private static final String INSERT = """
-            INSERT INTO test_assignment (id, listener_id, test_code, assigned_by, assigned_at)
+            INSERT INTO attestation.test_assignment (id, listener_id, test_code, assigned_by, assigned_at)
             VALUES (?, ?, ?, ?, ?)
             """;
 
     private static final String BY_ID = """
             SELECT id, listener_id, test_code
-            FROM test_assignment
+            FROM attestation.test_assignment
             WHERE id = ?
             """;
 
     private static final String OPEN = """
             SELECT id, listener_id, test_code
-            FROM test_assignment assignment
+            FROM attestation.test_assignment assignment
             WHERE listener_id = ?
               AND NOT EXISTS (
-                  SELECT 1 FROM attestation_attempt attempt
+                  SELECT 1 FROM attestation.attestation_attempt attempt
                   WHERE attempt.assignment_id = assignment.id AND attempt.finished_at IS NOT NULL
               )
             ORDER BY assigned_at
@@ -41,11 +41,11 @@ public class AssignmentRepository {
             SELECT assignment.id, assignment.test_code, assignment.assigned_at,
                    moodle_user.firstname, moodle_user.lastname,
                    EXISTS (
-                       SELECT 1 FROM attestation_attempt attempt
+                       SELECT 1 FROM attestation.attestation_attempt attempt
                        WHERE attempt.assignment_id = assignment.id AND attempt.finished_at IS NOT NULL
                    ) AS finished
-            FROM test_assignment assignment
-            JOIN mdl_user moodle_user ON moodle_user.id = assignment.listener_id
+            FROM attestation.test_assignment assignment
+            JOIN public.mdl_user moodle_user ON moodle_user.id = assignment.listener_id
             ORDER BY assignment.assigned_at DESC
             """;
 
