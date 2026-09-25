@@ -1,0 +1,7 @@
+spring:
+  main:
+    banner-mode: console
+
+test:
+  right-answers-count-to-pass: 3
+  locale: ru

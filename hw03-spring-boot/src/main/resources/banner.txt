@@ -1,0 +1,4 @@
+
+  Учебный центр. Аттестация слушателей
+  :: Spring Boot ${spring-boot.version} ::
+
