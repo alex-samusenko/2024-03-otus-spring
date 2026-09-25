@@ -1,136 +1,88 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "./api";
+import TestRun from "./TestRun";
 
-const DIFFICULTY = {
-  EASY: "Лёгкий",
-  MEDIUM: "Средний",
-  HARD: "Сложный",
-};
-
-const CHOICE = {
-  SINGLE: "один вариант",
-  MULTIPLE: "несколько вариантов",
+const ROLE = {
+  admin: "Администратор",
+  manager: "Менеджер",
+  mentor: "Преподаватель",
+  user: "Слушатель",
 };
 
 export default function App() {
-  const [stage, setStage] = useState("form");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [session, setSession] = useState(null);
-  const [index, setIndex] = useState(0);
-  const [selections, setSelections] = useState([]);
-  const [result, setResult] = useState(null);
-  const [remaining, setRemaining] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const finished = useRef(false);
-  const stateRef = useRef({});
-  stateRef.current = { index, selections, session };
 
   useEffect(() => {
-    if (stage !== "test" || !session) {
-      return undefined;
-    }
-    const endsAt = Date.now() + session.timeLimitSeconds * 1000;
-    const tick = () => {
-      const left = Math.max(0, Math.round((endsAt - Date.now()) / 1000));
-      setRemaining(left);
-      if (left === 0) {
-        finish(stateRef.current);
-      }
-    };
-    tick();
-    const timerId = setInterval(tick, 1000);
-    return () => clearInterval(timerId);
-  }, [stage, session]);
-
-  async function start(event) {
-    event.preventDefault();
-    setError("");
-    setBusy(true);
-    try {
-      const response = await fetch("/api/attempts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName }),
+    let active = true;
+    api("/api/session")
+      .then((current) => {
+        if (active) {
+          setUser(current);
+        }
+      })
+      .catch((cause) => {
+        if (!active) {
+          return;
+        }
+        if (cause.status === 401) {
+          setUser(null);
+          return;
+        }
+        setError(cause.message);
       });
-      if (!response.ok) {
-        throw new Error("Не удалось начать аттестацию");
-      }
-      const body = await response.json();
-      finished.current = false;
-      setSession(body);
-      setSelections(body.questions.map(() => []));
-      setIndex(0);
-      setResult(null);
-      setStage("test");
-    } catch (cause) {
-      setError(cause.message);
-    } finally {
-      setBusy(false);
-    }
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function logout() {
+    await api("/api/session", { method: "DELETE" });
+    setUser(null);
   }
 
-  function toggle(optionNumber) {
-    const question = session.questions[index];
-    setSelections((current) => current.map((selected, itemIndex) => {
-      if (itemIndex !== index) {
-        return selected;
-      }
-      if (question.choiceType === "SINGLE") {
-        return [optionNumber];
-      }
-      return selected.includes(optionNumber)
-        ? selected.filter((value) => value !== optionNumber)
-        : [...selected, optionNumber];
-    }));
+  if (error && user === undefined) {
+    return <main className="app"><p className="error">{error}</p></main>;
   }
-
-  async function persist(questionIndex, selected) {
-    await persistAnswer(session.id, questionIndex, selected);
+  if (user === undefined) {
+    return <main className="app"><p>Загрузка…</p></main>;
   }
-
-  async function persistAnswer(attemptId, questionIndex, selected) {
-    const response = await fetch(`/api/attempts/${attemptId}/answers`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ questionIndex, selected }),
-    });
-    if (!response.ok) {
-      throw new Error("Ответ не сохранился");
-    }
+  if (!user) {
+    return <Login onSuccess={setUser} />;
   }
+  return (
+    <main className="app">
+      <header className="topbar">
+        <div>
+          <p className="eyebrow">{ROLE[user.role] ?? user.role}</p>
+          <strong>{user.lastName} {user.firstName}</strong>
+        </div>
+        <button className="secondary" type="button" onClick={logout}>Выйти</button>
+      </header>
+      {user.role === "admin" && <AdminCabinet />}
+      {user.role === "manager" && <ManagerCabinet />}
+      {user.role === "mentor" && <MentorCabinet />}
+      {user.role === "user" && <ListenerCabinet />}
+    </main>
+  );
+}
 
-  async function move(nextIndex) {
+function Login({ onSuccess }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event) {
+    event.preventDefault();
     setBusy(true);
     setError("");
     try {
-      await persist(index, selections[index]);
-      setIndex(nextIndex);
+      onSuccess(await api("/api/session", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      }));
     } catch (cause) {
-      setError(cause.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function finish(snapshot) {
-    if (finished.current) {
-      return;
-    }
-    finished.current = true;
-    const current = snapshot ?? { index, selections, session };
-    setBusy(true);
-    setError("");
-    try {
-      await persistAnswer(current.session.id, current.index, current.selections[current.index] ?? []);
-      const response = await fetch(`/api/attempts/${current.session.id}/finish`, { method: "POST" });
-      if (!response.ok) {
-        throw new Error("Не удалось завершить аттестацию");
-      }
-      setResult(await response.json());
-      setStage("result");
-    } catch (cause) {
-      finished.current = false;
       setError(cause.message);
     } finally {
       setBusy(false);
@@ -139,149 +91,364 @@ export default function App() {
 
   return (
     <main className="app">
-      {stage === "form" && (
-        <Form
-          firstName={firstName}
-          lastName={lastName}
-          error={error}
-          busy={busy}
-          onFirstName={setFirstName}
-          onLastName={setLastName}
-          onSubmit={start}
-        />
-      )}
-      {stage === "test" && session && (
-        <QuestionStep
-          session={session}
-          index={index}
-          selected={selections[index] ?? []}
-          remaining={remaining}
-          error={error}
-          busy={busy}
-          onToggle={toggle}
-          onBack={() => move(index - 1)}
-          onNext={() => (index === session.questions.length - 1 ? finish() : move(index + 1))}
-        />
-      )}
-      {stage === "result" && result && session && (
-        <Result session={session} result={result} />
-      )}
+      <form className="panel" onSubmit={submit}>
+        <p className="eyebrow">Учебный центр</p>
+        <h1>Вход в аттестацию</h1>
+        <p className="lead">Логин и пароль берутся из имитации пользователей Moodle.</p>
+        <p className="accounts">
+          Демо-пароль у всех учётных записей: 1.
+          Роли: admin, manager, mentor, petrov, user.
+        </p>
+        <div className="fields">
+          <label>
+            Логин
+            <input
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              required
+            />
+          </label>
+          <label>
+            Пароль
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </label>
+        </div>
+        {error && <p className="error">{error}</p>}
+        <p className="actions">
+          <button className="primary" type="submit" disabled={busy}>Войти</button>
+        </p>
+      </form>
     </main>
   );
 }
 
-function Form({ firstName, lastName, error, busy, onFirstName, onLastName, onSubmit }) {
-  return (
-    <form className="panel" onSubmit={onSubmit}>
-      <p className="eyebrow">Учебный центр</p>
-      <h1>Аттестация слушателей</h1>
-      <p className="lead">
-        Ответьте на вопросы. Лёгкий вопрос весит 10 баллов, средний — 20, сложный — 40.
-        Зачёт — от 80 из 100.
-      </p>
-      <div className="fields">
-        <label>
-          Имя
-          <input value={firstName} onChange={(event) => onFirstName(event.target.value)} required />
-        </label>
-        <label>
-          Фамилия
-          <input value={lastName} onChange={(event) => onLastName(event.target.value)} required />
-        </label>
-      </div>
-      {error && <p className="error">{error}</p>}
-      <p className="actions">
-        <button className="primary" type="submit" disabled={busy}>Начать</button>
-      </p>
-    </form>
-  );
-}
+function AdminCabinet() {
+  const [listeners, setListeners] = useState(null);
+  const [error, setError] = useState("");
 
-function QuestionStep({ session, index, selected, remaining, error, busy, onToggle, onBack, onNext }) {
-  const question = session.questions[index];
-  const inputType = question.choiceType === "SINGLE" ? "radio" : "checkbox";
+  useEffect(() => {
+    api("/api/listeners").then(setListeners).catch((cause) => setError(cause.message));
+  }, []);
+
   return (
     <section className="panel">
-      <div className="toolbar">
-        <span>Вопрос {index + 1} из {session.questions.length}</span>
-        <span className="timer">{formatTime(remaining)}</span>
-      </div>
-      <div className="meta">
-        <span>{DIFFICULTY[question.difficulty]} · {question.weight}%</span>
-        <span>{CHOICE[question.choiceType]}</span>
-      </div>
-      <h1>{question.text}</h1>
-      <div className="options">
-        {question.options.map((option, optionIndex) => {
-          const number = optionIndex + 1;
-          return (
-            <label className="option" key={option}>
-              <input
-                type={inputType}
-                name={`question-${index}`}
-                checked={selected.includes(number)}
-                onChange={() => onToggle(number)}
-              />
-              <span>{option}</span>
-            </label>
-          );
-        })}
-      </div>
+      <h1>Слушатели</h1>
       {error && <p className="error">{error}</p>}
-      <div className="actions">
-        <button className="secondary" type="button" onClick={onBack} disabled={busy || index === 0}>
-          Назад
-        </button>
-        <button className="primary" type="button" onClick={onNext} disabled={busy}>
-          {index === session.questions.length - 1 ? "Завершить" : "Далее"}
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function Result({ session, result }) {
-  return (
-    <section className="panel">
-      <p className="eyebrow">Результат</p>
-      <h1 className={result.passed ? "passed" : "failed"}>
-        {result.passed ? "Аттестация сдана" : "Аттестация не сдана"}
-      </h1>
-      <p className="result-score">{result.scorePercent} из 100</p>
-      <p className="hint">
-        Правильных ответов: {result.rightAnswersCount} из {result.questionsCount}.
-        Проходной балл: {session.passingScore}.
-      </p>
-      {result.mistakes.length > 0 && (
-        <ul className="mistakes">
-          {result.mistakes.map((mistake) => {
-            const question = session.questions[mistake.index];
-            return (
-              <li key={mistake.index}>
-                <strong>{mistake.text}</strong>
-                <p>Ваш выбор: {labels(question, mistake.selected)}</p>
-                <p>Правильно: {labels(question, mistake.correct)}</p>
-              </li>
-            );
-          })}
-        </ul>
+      {!listeners && !error && <p>Загрузка…</p>}
+      {listeners && listeners.length === 0 && <p className="hint">Слушателей пока нет.</p>}
+      {listeners && listeners.length > 0 && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Логин</th>
+                <th>Слушатель</th>
+                <th>Почта</th>
+                <th>Организация</th>
+                <th>Подразделение</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listeners.map((listener) => (
+                <tr key={listener.username}>
+                  <td>{listener.username}</td>
+                  <td>{listener.lastName} {listener.firstName}</td>
+                  <td>{listener.email}</td>
+                  <td>{listener.institution}</td>
+                  <td>{listener.department}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
 }
 
-function labels(question, numbers) {
-  if (!numbers.length) {
-    return "нет ответа";
+function ManagerCabinet() {
+  const [listeners, setListeners] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [attempts, setAttempts] = useState([]);
+  const [username, setUsername] = useState("");
+  const [testCode, setTestCode] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function load() {
+    const [listenerRows, testRows, assignmentRows, attemptRows] = await Promise.all([
+      api("/api/listeners"),
+      api("/api/tests"),
+      api("/api/assignments"),
+      api("/api/reports/attempts"),
+    ]);
+    setListeners(listenerRows);
+    setTests(testRows);
+    setAssignments(assignmentRows);
+    setAttempts(attemptRows);
+    setUsername((current) => current || listenerRows[0]?.username || "");
+    setTestCode((current) => current || testRows[0]?.code || "");
   }
-  return numbers.map((number) => question.options[number - 1]).join("; ");
+
+  useEffect(() => {
+    load().catch((cause) => setError(cause.message));
+  }, []);
+
+  async function assign(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await api("/api/assignments", {
+        method: "POST",
+        body: JSON.stringify({ username, testCode }),
+      });
+      setMessage("Тест назначен");
+      await load();
+    } catch (cause) {
+      setError(cause.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <section className="panel">
+        <h1>Назначить тест</h1>
+        <form className="fields" onSubmit={assign}>
+          <label>
+            Слушатель
+            <select value={username} onChange={(event) => setUsername(event.target.value)} required>
+              {listeners.map((listener) => (
+                <option key={listener.username} value={listener.username}>
+                  {listener.lastName} {listener.firstName} ({listener.username})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Тест
+            <select value={testCode} onChange={(event) => setTestCode(event.target.value)} required>
+              {tests.map((test) => (
+                <option key={test.code} value={test.code}>
+                  {test.title} · {test.mentor}
+                </option>
+              ))}
+            </select>
+          </label>
+          {message && <p className="ok">{message}</p>}
+          {error && <p className="error">{error}</p>}
+          <p className="actions">
+            <button className="primary" type="submit" disabled={busy}>Назначить</button>
+          </p>
+        </form>
+      </section>
+      <section className="panel stack">
+        <h2>Назначения</h2>
+        <AssignmentTable rows={assignments} />
+        <h2>Попытки</h2>
+        <AttemptTable rows={attempts} showListener />
+      </section>
+    </>
+  );
 }
 
-function formatTime(totalSeconds) {
-  if (totalSeconds == null) {
-    return "";
+function MentorCabinet() {
+  const [tests, setTests] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api("/api/mentor/tests").then(setTests).catch((cause) => setError(cause.message));
+  }, []);
+
+  return (
+    <section className="panel">
+      <h1>Мои тесты</h1>
+      {error && <p className="error">{error}</p>}
+      {tests && tests.length === 0 && <p className="hint">За вами не закреплено ни одного теста.</p>}
+      {tests && tests.length > 0 && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Тест</th>
+                <th>Удачные</th>
+                <th>Неудачные</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tests.map((test) => (
+                <tr key={test.code}>
+                  <td>{test.title}</td>
+                  <td>{test.passedCount}</td>
+                  <td>{test.failedCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ListenerCabinet() {
+  const [assignments, setAssignments] = useState([]);
+  const [attempts, setAttempts] = useState([]);
+  const [session, setSession] = useState(null);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState("");
+
+  async function load() {
+    const [assignmentRows, attemptRows] = await Promise.all([
+      api("/api/my/assignments"),
+      api("/api/my/attempts"),
+    ]);
+    setAssignments(assignmentRows);
+    setAttempts(attemptRows);
   }
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+  useEffect(() => {
+    load().catch((cause) => setError(cause.message));
+  }, []);
+
+  async function openAssignment(assignment) {
+    setBusyId(assignment.id);
+    setError("");
+    try {
+      const next = assignment.activeAttemptId
+        ? await api(`/api/attempts/${assignment.activeAttemptId}`)
+        : await api("/api/attempts", {
+          method: "POST",
+          body: JSON.stringify({ assignmentId: assignment.id }),
+        });
+      setSession(next);
+    } catch (cause) {
+      setError(cause.message);
+    } finally {
+      setBusyId("");
+    }
+  }
+
+  if (session) {
+    return (
+      <TestRun
+        session={session}
+        onExit={() => {
+          setSession(null);
+          load().catch((cause) => setError(cause.message));
+        }}
+      />
+    );
+  }
+
+  return (
+    <section className="panel">
+      <h1>Моя аттестация</h1>
+      {error && <p className="error">{error}</p>}
+      <h2>Назначенные тесты</h2>
+      {assignments.length === 0 && <p className="hint">Менеджер пока не назначил тест.</p>}
+      {assignments.length > 0 && (
+        <ul className="assignment-list">
+          {assignments.map((assignment) => (
+            <li key={assignment.id}>
+              <span>{assignment.testTitle}</span>
+              <button
+                className="primary"
+                type="button"
+                disabled={busyId === assignment.id}
+                onClick={() => openAssignment(assignment)}
+              >
+                {assignment.activeAttemptId ? "Продолжить" : "Пройти"}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h2>Мои попытки</h2>
+      <AttemptTable rows={attempts} />
+    </section>
+  );
+}
+
+function AssignmentTable({ rows }) {
+  if (rows.length === 0) {
+    return <p className="hint">Назначений пока нет.</p>;
+  }
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Слушатель</th>
+            <th>Тест</th>
+            <th>Дата</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td>{row.listenerName}</td>
+              <td>{row.testTitle}</td>
+              <td>{formatDate(row.assignedAt)}</td>
+              <td>{row.finished ? "завершено" : "ожидает"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AttemptTable({ rows, showListener = false }) {
+  if (rows.length === 0) {
+    return <p className="hint">Попыток пока нет.</p>;
+  }
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            {showListener && <th>Слушатель</th>}
+            <th>Тест</th>
+            <th>Дата</th>
+            <th>Результат</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={`${row.listenerName}-${row.finishedAt}-${row.testTitle}`}>
+              {showListener && <td>{row.listenerName}</td>}
+              <td>{row.testTitle}</td>
+              <td>{formatDate(row.finishedAt)}</td>
+              <td className={row.passed ? "passed" : "failed"}>{resultLabel(row)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function resultLabel(row) {
+  return `${row.scorePercent} из 100 · ${row.passed ? "сдана" : "не сдана"}`;
+}
+
+function formatDate(value) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value));
 }

@@ -18,7 +18,7 @@ input {
 }
 
 .app {
-  max-width: 760px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 32px 16px 48px;
 }
@@ -62,10 +62,14 @@ label {
   font-weight: 600;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"],
+select {
   border: 1px solid #b7c7d2;
   border-radius: 10px;
   padding: 12px 14px;
+  background: #fff;
+  width: 100%;
 }
 
 .primary,
@@ -169,4 +173,73 @@ input[type="text"] {
 
 .error {
   color: #b42318;
+}
+
+.ok {
+  color: #1d7a46;
+  margin: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.accounts {
+  margin: 0 0 16px;
+  color: #3d5566;
+  line-height: 1.45;
+}
+
+.stack {
+  margin-top: 16px;
+}
+
+h2 {
+  margin: 8px 0 12px;
+  font-size: 22px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #d5e0e8;
+  vertical-align: top;
+}
+
+th {
+  font-size: 13px;
+  color: #3d5566;
+}
+
+.assignment-list {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.assignment-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #d5e0e8;
+  border-radius: 12px;
+  padding: 12px;
 }

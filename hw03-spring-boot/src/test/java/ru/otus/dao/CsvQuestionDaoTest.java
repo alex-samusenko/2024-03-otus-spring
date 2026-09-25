@@ -20,7 +20,7 @@ public class CsvQuestionDaoTest {
     @BeforeEach
     void setup() {
         fileNameProvider = mock(TestFileNameProvider.class);
-        questionDao = new CsvQuestionDao(fileNameProvider);
+        questionDao = new CsvQuestionDao(fileNameProvider, new QuestionCsvReader());
     }
 
     @Test

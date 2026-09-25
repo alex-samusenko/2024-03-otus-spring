@@ -1,6 +1,8 @@
 package ru.otus.web;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +16,7 @@ import ru.otus.web.dto.StartAttemptRequest;
 
 @RestController
 @RequestMapping("/api/attempts")
+@Profile("!console")
 @RequiredArgsConstructor
 public class AttemptController {
 
@@ -21,7 +24,12 @@ public class AttemptController {
 
     @PostMapping
     public AttemptSession start(@RequestBody StartAttemptRequest request) {
-        return attemptService.start(request.firstName(), request.lastName());
+        return attemptService.start(request.assignmentId());
+    }
+
+    @GetMapping("/{id}")
+    public AttemptSession read(@PathVariable("id") String id) {
+        return attemptService.read(id);
     }
 
     @PutMapping("/{id}/answers")

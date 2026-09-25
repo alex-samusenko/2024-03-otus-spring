@@ -4,6 +4,13 @@ server:
 spring:
   main:
     banner-mode: console
+  datasource:
+    url: jdbc:postgresql://localhost:5432/moodle
+    username: moodle
+    password: moodle
+  sql:
+    init:
+      mode: never
 
 test:
   passing-score: 80

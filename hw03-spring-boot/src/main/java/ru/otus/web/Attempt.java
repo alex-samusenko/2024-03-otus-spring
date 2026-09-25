@@ -16,14 +16,17 @@ public class Attempt {
 
     private final List<Question> questions;
 
+    private final AttemptMeta meta;
+
     private final List<Set<Integer>> selected;
 
     private AttemptResultView result;
 
-    public Attempt(String id, Student student, List<Question> questions) {
+    public Attempt(String id, Student student, List<Question> questions, AttemptMeta meta) {
         this.id = id;
         this.student = student;
         this.questions = List.copyOf(questions);
+        this.meta = meta;
         this.selected = new ArrayList<>();
         for (var i = 0; i < this.questions.size(); i++) {
             selected.add(Set.of());
@@ -40,6 +43,10 @@ public class Attempt {
 
     public List<Question> getQuestions() {
         return questions;
+    }
+
+    public AttemptMeta getMeta() {
+        return meta;
     }
 
     public List<Set<Integer>> getSelected() {

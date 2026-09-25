@@ -1,0 +1,3 @@
+mentor;Spring Boot
+Какой стартер поднимает встроенный веб-сервер?;EASY;SINGLE;spring-boot-starter-web%true|spring-boot-starter-mail%false|spring-boot-starter-batch%false
+Что отмечает класс приложения Spring Boot?;MEDIUM;MULTIPLE;@SpringBootApplication%true|@ConfigurationPropertiesScan%true|@CsvBindByPosition%false
