@@ -103,6 +103,7 @@ function Login({ onSuccess }) {
           <label>
             Логин
             <input
+              type="text"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               autoComplete="username"
